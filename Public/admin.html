@@ -11,7 +11,7 @@
 
   <nav class="navbar">
     <span class="brand">Admin Panel</span>
-    <a href="/" class="admin-link">User Form</a>
+    <a href="/" class="admin-link">Back to User Page</a>
   </nav>
 
   <main class="admin-container">
@@ -53,7 +53,7 @@
           const fields = [
             ["Email", item.email],
             ["Phone", item.phone],
-            ["Date", String(item.submitted_date).slice(0, 10)],
+            ["Date", item.submitted_date],
             ["Marks", `${item.marks} / 100`],
             ["Message", item.message]
           ];
@@ -61,26 +61,15 @@
           fields.forEach(([label, value]) => {
             const p = document.createElement("p");
             const strong = document.createElement("strong");
+
             strong.textContent = label + ": ";
             p.appendChild(strong);
             p.appendChild(
               document.createTextNode(String(value ?? ""))
             );
+
             card.appendChild(p);
           });
-
-          if (item.image_base64 && item.image_mime) {
-            const image = document.createElement("img");
-            image.className = "submitted-image";
-            image.alt = "Image uploaded by " + item.name;
-            image.src =
-              `data:${item.image_mime};base64,${item.image_base64}`;
-            card.appendChild(image);
-          } else {
-            const p = document.createElement("p");
-            p.textContent = "No image uploaded.";
-            card.appendChild(p);
-          }
 
           container.appendChild(card);
         });
@@ -95,6 +84,7 @@
 
 </body>
 </html>
+
 
 
 </body>
