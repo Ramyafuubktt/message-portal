@@ -16,48 +16,72 @@ const db = new Pool({
     : { rejectUnauthorized: false }
 });
 
+// User page
 app.get("/", (req, res) => {
   res.sendFile(path.join(folder, "index.html"));
 });
 
+// Admin page
 app.get("/admin", (req, res) => {
   res.sendFile(path.join(folder, "admin.html"));
 });
 
+app.get("/admin.html", (req, res) => {
+  res.sendFile(path.join(folder, "admin.html"));
+});
+
+// Save user's five fields
 app.post("/api/messages", async (req, res) => {
   const { name, email, subject, message, phone } = req.body;
 
   if (![name, email, subject, message, phone].every(
-    v => typeof v === "string" && v.trim()
+    value => typeof value === "string" && value.trim()
   )) {
-    return res.status(400).json({ error: "Fill in all five fields." });
+    return res.status(400).json({
+      error: "Please fill in all five fields."
+    });
   }
 
   try {
     await db.query(
-      `INSERT INTO messages (name, email, subject, message, phone)
+      `INSERT INTO messages
+       (name, email, subject, message, phone)
        VALUES ($1, $2, $3, $4, $5)`,
-      [name.trim(), email.trim(), subject.trim(), message.trim(), phone.trim()]
+      [
+        name.trim(),
+        email.trim(),
+        subject.trim(),
+        message.trim(),
+        phone.trim()
+      ]
     );
+
     res.json({ message: "Message submitted successfully!" });
   } catch (err) {
-    console.error(err.message);
-    res.status(500).json({ error: "Could not save message." });
+    console.error("Save error:", err.message);
+    res.status(500).json({
+      error: "Could not save message."
+    });
   }
 });
 
+// Display all submitted messages - no password
 app.get("/api/messages", async (req, res) => {
   try {
     const result = await db.query(
       "SELECT * FROM messages ORDER BY id DESC"
     );
+
     res.json(result.rows);
   } catch (err) {
-    console.error(err.message);
-    res.status(500).json({ error: "Could not load messages." });
+    console.error("Load error:", err.message);
+    res.status(500).json({
+      error: "Could not load messages."
+    });
   }
 });
 
+// Create database table and start server
 async function start() {
   await db.query(`
     CREATE TABLE IF NOT EXISTS messages (
@@ -72,7 +96,7 @@ async function start() {
   `);
 
   app.listen(process.env.PORT || 3000, "0.0.0.0", () => {
-    console.log("Message Portal running");
+    console.log("Message Portal is running!");
   });
 }
 
@@ -80,6 +104,7 @@ start().catch(err => {
   console.error("Database connection failed:", err.message);
   process.exit(1);
 });
+
 
 start().catch(err => {
   console.error("Database connection failed:", err.message);
