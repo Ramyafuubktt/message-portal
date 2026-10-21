@@ -1,59 +1,244 @@
-
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Message Form</title>
-  <link rel="stylesheet" href="/style.css">
-</head>
-<body>
+  <title>Message Portal</title>
 
-  <div style="text-align: right; margin: 15px;">
-    <a href="/admin" style="
-      background: #2563eb;
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f2f5fb;
+      color: #222;
+    }
+
+    .top {
+      text-align: right;
+      padding: 20px 7%;
+    }
+
+    .top a,
+    button {
+      background: #3157d5;
       color: white;
-      padding: 10px 18px;
+      padding: 11px 18px;
+      border: none;
       border-radius: 6px;
       text-decoration: none;
-    ">Admin Panel</a>
+      cursor: pointer;
+    }
+
+    header {
+      text-align: center;
+      padding: 10px 20px;
+    }
+
+    .banner {
+      display: block;
+      width: 90%;
+      max-width: 600px;
+      height: 200px;
+      object-fit: cover;
+      border-radius: 12px;
+      margin: 15px auto 25px;
+    }
+
+    form {
+      max-width: 450px;
+      margin: 0 auto 40px;
+      padding: 25px;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 3px 15px #0001;
+    }
+
+    label {
+      display: block;
+      margin-top: 14px;
+      font-weight: bold;
+    }
+
+    input {
+      box-sizing: border-box;
+      width: 100%;
+      padding: 11px;
+      margin-top: 6px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+    }
+
+    button {
+      width: 100%;
+      margin-top: 20px;
+    }
+
+    #preview {
+      display: none;
+      max-width: 100%;
+      max-height: 200px;
+      margin-top: 12px;
+      border-radius: 8px;
+    }
+
+    #status {
+      text-align: center;
+      overflow-wrap: anywhere;
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- Admin Panel Link -->
+  <div class="top">
+    <a href="/admin">Admin Panel</a>
   </div>
 
-  <!-- Keep your existing form below -->
+  <!-- Page Heading -->
+  <header>
+    <h1>Welcome to Message Portal</h1>
+    <p>Enter your details and upload an image.</p>
+  </header>
 
-</body>
-  <h2>Contact Us</h2>
+  <!-- Display Image -->
+  <img
+    class="banner"
+    src="https://images.unsplash.com/photo-1497366754035-f200968a6e72?auto=format&fit=crop&w=800&q=80"
+    alt="Office workspace"
+  >
 
-  <form id="form">
-    <input name="name" placeholder="Name" required><br><br>
-    <input name="email" type="email" placeholder="Email" required><br><br>
-    <input name="subject" placeholder="Subject" required><br><br>
-    <textarea name="message" placeholder="Message" required></textarea><br><br>
-    <input name="phone" placeholder="Phone Number" required><br><br>
-    <button type="submit">Submit</button>
+  <!-- User Form -->
+  <form id="messageForm">
+
+    <h2>Submit Your Details</h2>
+
+    <!-- 1. Text -->
+    <label for="name">Full Name</label>
+    <input
+      type="text"
+      id="name"
+      name="name"
+      required
+    >
+
+    <!-- 2. Email -->
+    <label for="email">Email ID</label>
+    <input
+      type="email"
+      id="email"
+      name="email"
+      required
+    >
+
+    <!-- 3. Telephone Number -->
+    <label for="phone">Phone Number</label>
+    <input
+      type="tel"
+      id="phone"
+      name="phone"
+      required
+    >
+
+    <!-- 4. Password -->
+    <label for="password">Password</label>
+    <input
+      type="password"
+      id="password"
+      name="password"
+      required
+    >
+
+    <!-- 5. Date -->
+    <label for="date">Date</label>
+    <input
+      type="date"
+      id="date"
+      name="date"
+      required
+    >
+
+    <!-- 6. Image Upload -->
+    <label for="image">Upload Image</label>
+    <input
+      type="file"
+      id="image"
+      name="image"
+      accept="image/*"
+      required
+    >
+
+    <!-- Image Preview -->
+    <img id="preview" alt="Selected image preview">
+
+    <button type="submit">Submit Details</button>
+
+    <p id="status"></p>
+
   </form>
-  
-
-  <p id="status"></p>
 
   <script>
-    document.getElementById("form").addEventListener("submit", async e => {
-      e.preventDefault();
-      const data = Object.fromEntries(new FormData(e.target));
+    const form = document.getElementById("messageForm");
+    const status = document.getElementById("status");
+    const imageInput = document.getElementById("image");
+    const preview = document.getElementById("preview");
+
+    // Display selected image
+    imageInput.addEventListener("change", () => {
+      const file = imageInput.files[0];
+
+      preview.style.display = "none";
+      preview.removeAttribute("src");
+
+      if (file) {
+        if (!file.type.startsWith("image/")) {
+          status.textContent = "Please select an image.";
+          imageInput.value = "";
+          return;
+        }
+
+        status.textContent = "";
+        preview.src = URL.createObjectURL(file);
+        preview.style.display = "block";
+      }
+    });
+
+    // Submit form to backend
+    form.addEventListener("submit", async (event) => {
+      event.preventDefault();
+
+      status.textContent = "Submitting...";
+
+      const data = new FormData(form);
 
       try {
         const response = await fetch("/api/messages", {
           method: "POST",
-          headers: {"Content-Type": "application/json"},
-          body: JSON.stringify(data)
+          body: data
         });
+
         const result = await response.json();
-        document.getElementById("status").textContent =
-          result.message || result.error;
-        if (response.ok) e.target.reset();
-      } catch {
-        document.getElementById("status").textContent =
-          "Unable to connect to the server.";
+
+        if (!response.ok) {
+          throw new Error(
+            result.error || "Submission failed"
+          );
+        }
+
+        status.textContent =
+          "Details submitted successfully!";
+
+        form.reset();
+        preview.removeAttribute("src");
+        preview.style.display = "none";
+
+      } catch (error) {
+        status.textContent =
+          "Error: " + error.message;
+      }
+    });
+  </script>
       }
     });
   </script>
