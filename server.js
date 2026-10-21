@@ -4,9 +4,10 @@ const { Pool } = require("pg");
 const path = require("path");
 
 const app = express();
+const folder = path.join(__dirname, "Public");
 
 app.use(express.json());
-app.use(express.static(path.join(__dirname, "Public")));
+app.use(express.static(folder));
 
 const db = new Pool({
   connectionString: process.env.DATABASE_URL,
@@ -16,15 +17,11 @@ const db = new Pool({
 });
 
 app.get("/", (req, res) => {
-  res.sendFile(path.join(__dirname, "Public", "index.html"));
+  res.sendFile(path.join(folder, "index.html"));
 });
 
 app.get("/admin", (req, res) => {
-  res.sendFile(path.join(__dirname, "Public", "admin.html"));
-});
-
-app.get("/admin.html", (req, res) => {
-  res.sendFile(path.join(__dirname, "Public", "admin.html"));
+  res.sendFile(path.join(folder, "admin.html"));
 });
 
 app.post("/api/messages", async (req, res) => {
@@ -33,24 +30,15 @@ app.post("/api/messages", async (req, res) => {
   if (![name, email, subject, message, phone].every(
     v => typeof v === "string" && v.trim()
   )) {
-    return res.status(400).json({
-      error: "Fill in all five fields."
-    });
+    return res.status(400).json({ error: "Fill in all five fields." });
   }
 
   try {
     await db.query(
       `INSERT INTO messages (name, email, subject, message, phone)
        VALUES ($1, $2, $3, $4, $5)`,
-      [
-        name.trim(),
-        email.trim(),
-        subject.trim(),
-        message.trim(),
-        phone.trim()
-      ]
+      [name.trim(), email.trim(), subject.trim(), message.trim(), phone.trim()]
     );
-
     res.json({ message: "Message submitted successfully!" });
   } catch (err) {
     console.error(err.message);
@@ -59,20 +47,10 @@ app.post("/api/messages", async (req, res) => {
 });
 
 app.get("/api/messages", async (req, res) => {
-  if (
-    !process.env.ADMIN_PASSWORD ||
-    req.get("x-admin-password") !== process.env.ADMIN_PASSWORD
-  ) {
-    return res.status(401).json({
-      error: "Incorrect admin password."
-    });
-  }
-
   try {
     const result = await db.query(
       "SELECT * FROM messages ORDER BY id DESC"
     );
-
     res.json(result.rows);
   } catch (err) {
     console.error(err.message);
@@ -94,9 +72,14 @@ async function start() {
   `);
 
   app.listen(process.env.PORT || 3000, "0.0.0.0", () => {
-    console.log("Message Portal is running!");
+    console.log("Message Portal running");
   });
 }
+
+start().catch(err => {
+  console.error("Database connection failed:", err.message);
+  process.exit(1);
+});
 
 start().catch(err => {
   console.error("Database connection failed:", err.message);
