@@ -1,0 +1,77 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Admin - Messages</title>
+</head>
+<body>
+  <h2>Admin - Submitted Messages</h2>
+
+  <label for="password">Admin Password:</label>
+  <input type="password" id="password" placeholder="Enter admin password">
+  <button id="load">View Messages</button>
+
+  <p id="status"></p>
+  <div id="messages"></div>
+
+  <script>
+    document.getElementById("load").addEventListener("click", async () => {
+      const password = document.getElementById("password").value;
+      const status = document.getElementById("status");
+      const container = document.getElementById("messages");
+
+      status.textContent = "Loading messages...";
+      container.replaceChildren();
+
+      try {
+        const response = await fetch("/api/messages", {
+          headers: { "x-admin-password": password }
+        });
+
+        const result = await response.json();
+
+        if (!response.ok) {
+          status.textContent = result.error || "Unable to load messages.";
+          return;
+        }
+
+        if (result.length === 0) {
+          status.textContent = "No messages submitted yet.";
+          return;
+        }
+
+        status.textContent = result.length + " message(s) found.";
+
+        result.forEach(item => {
+          const card = document.createElement("div");
+          const heading = document.createElement("h3");
+          heading.textContent = item.subject;
+
+          const details = document.createElement("p");
+          details.textContent =
+            "Name: " + item.name +
+            " | Email: " + item.email +
+            " | Phone: " + item.phone;
+
+          const message = document.createElement("p");
+          message.textContent = "Message: " + item.message;
+
+          const date = document.createElement("small");
+          date.textContent = "Submitted: " + item.created_at;
+
+          card.append(heading, details, message, date);
+          card.style.border = "1px solid #ccc";
+          card.style.padding = "12px";
+          card.style.margin = "12px 0";
+          container.appendChild(card);
+        });
+      } catch {
+        status.textContent = "Unable to connect to the server.";
+      }
+    });
+  </script>
+</body>
+</html>
+

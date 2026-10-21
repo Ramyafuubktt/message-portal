@@ -1,0 +1,45 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Message Form</title>
+</head>
+<body>
+  <h2>Contact Us</h2>
+
+  <form id="form">
+    <input name="name" placeholder="Name" required><br><br>
+    <input name="email" type="email" placeholder="Email" required><br><br>
+    <input name="subject" placeholder="Subject" required><br><br>
+    <textarea name="message" placeholder="Message" required></textarea><br><br>
+    <input name="phone" placeholder="Phone Number" required><br><br>
+    <button type="submit">Submit</button>
+  </form>
+
+  <p id="status"></p>
+
+  <script>
+    document.getElementById("form").addEventListener("submit", async e => {
+      e.preventDefault();
+      const data = Object.fromEntries(new FormData(e.target));
+
+      try {
+        const response = await fetch("/api/messages", {
+          method: "POST",
+          headers: {"Content-Type": "application/json"},
+          body: JSON.stringify(data)
+        });
+        const result = await response.json();
+        document.getElementById("status").textContent =
+          result.message || result.error;
+        if (response.ok) e.target.reset();
+      } catch {
+        document.getElementById("status").textContent =
+          "Unable to connect to the server.";
+      }
+    });
+  </script>
+</body>
+</html>
