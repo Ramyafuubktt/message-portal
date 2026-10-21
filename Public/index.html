@@ -1,10 +1,11 @@
+
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Message Portal</title>
+  <link rel="stylesheet" href="/style.css">
 
   <style>
     body {
@@ -19,8 +20,7 @@
       padding: 20px 7%;
     }
 
-    .top a,
-    button {
+    .top a, button {
       background: #3157d5;
       color: white;
       padding: 11px 18px;
@@ -32,21 +32,27 @@
 
     header {
       text-align: center;
-      padding: 10px 20px;
+      padding: 15px 20px 30px;
     }
 
-    .banner {
-      display: block;
-      width: 90%;
-      max-width: 600px;
-      height: 200px;
+    .gallery {
+      display: flex;
+      gap: 15px;
+      justify-content: center;
+      flex-wrap: wrap;
+      padding: 0 20px 30px;
+    }
+
+    .gallery img {
+      width: 28%;
+      min-width: 180px;
+      height: 170px;
       object-fit: cover;
       border-radius: 12px;
-      margin: 15px auto 25px;
     }
 
     form {
-      max-width: 450px;
+      max-width: 480px;
       margin: 0 auto 40px;
       padding: 25px;
       background: white;
@@ -60,7 +66,7 @@
       font-weight: bold;
     }
 
-    input {
+    input, textarea {
       box-sizing: border-box;
       width: 100%;
       padding: 11px;
@@ -70,112 +76,68 @@
     }
 
     button {
-      width: 100%;
       margin-top: 20px;
+      width: 100%;
+    }
+
+    #status {
+      text-align: center;
+      margin-top: 15px;
     }
 
     #preview {
       display: none;
       max-width: 100%;
       max-height: 200px;
-      margin-top: 12px;
-      border-radius: 8px;
-    }
-
-    #status {
-      text-align: center;
-      overflow-wrap: anywhere;
+      margin-top: 10px;
     }
   </style>
 </head>
 
 <body>
-
-  <!-- Admin Panel Link -->
   <div class="top">
     <a href="/admin">Admin Panel</a>
   </div>
 
-  <!-- Page Heading -->
   <header>
     <h1>Welcome to Message Portal</h1>
-    <p>Enter your details and upload an image.</p>
+    <p>Fill in the form below to send us a message.</p>
   </header>
 
-  <!-- Display Image -->
-  <img
-    class="banner"
-    src="https://images.unsplash.com/photo-1497366754035-f200968a6e72?auto=format&fit=crop&w=800&q=80"
-    alt="Office workspace"
-  >
+  <section class="gallery">
+    <img src="https://images.unsplash.com/photo-1497366754035-f200968a6e72?auto=format&fit=crop&w=600&q=80" alt="Modern office">
+    <img src="https://images.unsplash.com/photo-1497366811353-6870744d04b2?auto=format&fit=crop&w=600&q=80" alt="Workspace">
+    <img src="https://images.unsplash.com/photo-1521737711867-e3b97375f902?auto=format&fit=crop&w=600&q=80" alt="Team working together">
+  </section>
 
-  <!-- User Form -->
   <form id="messageForm">
+    <h2>Contact Us</h2>
 
-    <h2>Submit Your Details</h2>
-
-    <!-- 1. Text -->
     <label for="name">Full Name</label>
-    <input
-      type="text"
-      id="name"
-      name="name"
-      required
-    >
+    <input id="name" name="name" required>
 
-    <!-- 2. Email -->
-    <label for="email">Email ID</label>
-    <input
-      type="email"
-      id="email"
-      name="email"
-      required
-    >
+    <label for="email">Email</label>
+    <input id="email" name="email" type="email" required>
 
-    <!-- 3. Telephone Number -->
     <label for="phone">Phone Number</label>
-    <input
-      type="tel"
-      id="phone"
-      name="phone"
-      required
-    >
+    <input id="phone" name="phone" type="tel" required>
 
-    <!-- 4. Password -->
-    <label for="password">Password</label>
-    <input
-      type="password"
-      id="password"
-      name="password"
-      required
-    >
+    <label for="subject">Subject</label>
+    <input id="subject" name="subject" required>
 
-    <!-- 5. Date -->
-    <label for="date">Date</label>
-    <input
-      type="date"
-      id="date"
-      name="date"
-      required
-    >
+    <label for="dob">Date of Birth</label>
+    <input id="dob" name="dob" type="date" required>
 
-    <!-- 6. Image Upload -->
     <label for="image">Upload Image</label>
-    <input
-      type="file"
-      id="image"
-      name="image"
-      accept="image/*"
-      required
-    >
+    <input id="image" name="image" type="file" accept="image/*" required>
 
-    <!-- Image Preview -->
     <img id="preview" alt="Selected image preview">
 
-    <button type="submit">Submit Details</button>
+    <label for="message">Message</label>
+    <textarea id="message" name="message" rows="4" required></textarea>
 
+    <button type="submit">Submit Message</button>
     <p id="status"></p>
-
   </form>
 
   <script>
@@ -184,31 +146,19 @@
     const imageInput = document.getElementById("image");
     const preview = document.getElementById("preview");
 
-    // Display selected image
     imageInput.addEventListener("change", () => {
       const file = imageInput.files[0];
 
       preview.style.display = "none";
-      preview.removeAttribute("src");
 
-      if (file) {
-        if (!file.type.startsWith("image/")) {
-          status.textContent = "Please select an image.";
-          imageInput.value = "";
-          return;
-        }
-
-        status.textContent = "";
+      if (file && file.type.startsWith("image/")) {
         preview.src = URL.createObjectURL(file);
         preview.style.display = "block";
       }
     });
 
-    // Submit form to backend
     form.addEventListener("submit", async (event) => {
       event.preventDefault();
-
-      status.textContent = "Submitting...";
 
       const data = new FormData(form);
 
@@ -221,24 +171,22 @@
         const result = await response.json();
 
         if (!response.ok) {
-          throw new Error(
-            result.error || "Submission failed"
-          );
+          throw new Error(result.error || "Submission failed");
         }
 
-        status.textContent =
-          "Details submitted successfully!";
-
+        status.textContent = "Message submitted successfully!";
         form.reset();
-        preview.removeAttribute("src");
         preview.style.display = "none";
+        preview.removeAttribute("src");
 
       } catch (error) {
-        status.textContent =
-          "Error: " + error.message;
+        status.textContent = error.message;
       }
     });
   </script>
+</body>
+</html>
+
       }
     });
   </script>
