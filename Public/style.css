@@ -15,9 +15,9 @@ body {
   justify-content: space-between;
   align-items: center;
   gap: 12px;
-  padding: 18px 7%;
-  background: #ffffff;
-  box-shadow: 0 2px 10px #0000000c;
+  padding: 16px 6%;
+  background: white;
+  box-shadow: 0 2px 8px #0000000c;
 }
 
 .brand {
@@ -30,44 +30,48 @@ body {
   background: #3157d5;
   color: white;
   text-decoration: none;
-  padding: 11px 16px;
+  padding: 10px 14px;
   border-radius: 7px;
+}
+
+.admin-link:hover,
+button:hover {
+  background: #203d91;
 }
 
 .hero {
   text-align: center;
-  padding: 32px 16px 20px;
+  padding: 22px 15px 10px;
 }
 
 .hero h1 {
-  margin-bottom: 8px;
   color: #203d91;
+  margin-bottom: 8px;
 }
 
 .gallery {
   display: flex;
   justify-content: center;
-  flex-wrap: wrap;
-  gap: 18px;
-  padding: 12px 5% 30px;
+  gap: 14px;
+  padding: 12px 5% 24px;
 }
 
 .gallery img {
-  width: 30%;
-  min-width: 190px;
-  height: 180px;
+  width: 28%;
+  height: 115px;
   object-fit: cover;
-  border-radius: 12px;
+  border-radius: 10px;
 }
 
 .form-container,
 .admin-container {
-  width: min(92%, 760px);
-  margin: 15px auto 40px;
-  padding: 28px;
+  width: 92%;
+  max-width: 760px;
+  margin: 15px auto 35px;
+  padding: 25px;
   background: white;
   border-radius: 12px;
-  box-shadow: 0 4px 18px #0000000b;
+  box-shadow: 0 4px 15px #0000000b;
 }
 
 .form-container {
@@ -81,15 +85,15 @@ h2,
 
 label {
   display: block;
-  margin-top: 16px;
+  margin-top: 15px;
   font-weight: bold;
 }
 
 input,
 textarea {
   width: 100%;
-  margin-top: 7px;
-  padding: 12px;
+  margin-top: 6px;
+  padding: 11px;
   font: inherit;
   border: 1px solid #ccd3e0;
   border-radius: 7px;
@@ -101,11 +105,15 @@ textarea:focus {
   border-color: #3157d5;
 }
 
+input[type="file"] {
+  background: #fafbff;
+}
+
 button {
   width: 100%;
-  margin-top: 22px;
-  padding: 13px;
-  border: 0;
+  margin-top: 20px;
+  padding: 12px;
+  border: none;
   border-radius: 7px;
   background: #3157d5;
   color: white;
@@ -118,6 +126,19 @@ button:disabled {
   cursor: wait;
 }
 
+.upload-preview {
+  display: block;
+  max-width: 100%;
+  max-height: 180px;
+  margin-top: 12px;
+  border-radius: 8px;
+  object-fit: contain;
+}
+
+[hidden] {
+  display: none !important;
+}
+
 #status {
   overflow-wrap: anywhere;
 }
@@ -125,12 +146,12 @@ button:disabled {
 .message-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
-  gap: 16px;
+  gap: 15px;
   margin-top: 20px;
 }
 
 .message-card {
-  padding: 18px;
+  padding: 17px;
   border: 1px solid #dfe5f0;
   border-radius: 10px;
   background: #fafbff;
@@ -141,14 +162,38 @@ button:disabled {
   color: #294cc4;
 }
 
+.submitted-image {
+  display: block;
+  width: 100%;
+  max-height: 220px;
+  margin-top: 12px;
+  object-fit: contain;
+  border-radius: 8px;
+  background: #edf0f7;
+}
+
 @media (max-width: 600px) {
+  .navbar {
+    padding: 14px;
+  }
+
+  .brand {
+    font-size: 18px;
+  }
+
+  .gallery {
+    gap: 8px;
+    padding: 10px 12px 20px;
+  }
+
   .gallery img {
-    width: 100%;
+    width: calc((100% - 16px) / 3);
+    height: 85px;
   }
 
   .form-container,
   .admin-container {
-    padding: 20px;
+    padding: 18px;
   }
 }
 
