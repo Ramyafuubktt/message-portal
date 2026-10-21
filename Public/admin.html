@@ -1,249 +1,110 @@
+```html
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Message Portal</title>
+  <title>Admin Panel</title>
+  <link rel="stylesheet" href="/style.css">
 
   <style>
     body {
-      margin: 0;
       font-family: Arial, sans-serif;
       background: #f2f5fb;
-      color: #222;
+      padding: 20px;
     }
 
-    .top {
-      text-align: right;
-      padding: 20px 7%;
-    }
-
-    .top a,
-    button {
-      background: #3157d5;
-      color: white;
-      padding: 11px 18px;
-      border: none;
-      border-radius: 6px;
-      text-decoration: none;
-      cursor: pointer;
-    }
-
-    header {
-      text-align: center;
-      padding: 10px 20px;
-    }
-
-    .banner {
-      display: block;
-      width: 90%;
-      max-width: 600px;
-      height: 200px;
-      object-fit: cover;
-      border-radius: 12px;
-      margin: 15px auto 25px;
-    }
-
-    form {
-      max-width: 450px;
-      margin: 0 auto 40px;
-      padding: 25px;
+    .card {
       background: white;
-      border-radius: 12px;
+      max-width: 600px;
+      margin: 20px auto;
+      padding: 20px;
+      border-radius: 10px;
       box-shadow: 0 3px 15px #0001;
+      overflow-wrap: anywhere;
     }
 
-    label {
-      display: block;
-      margin-top: 14px;
-      font-weight: bold;
-    }
-
-    input {
-      box-sizing: border-box;
-      width: 100%;
-      padding: 11px;
-      margin-top: 6px;
-      border: 1px solid #ccc;
-      border-radius: 6px;
-    }
-
-    button {
-      width: 100%;
-      margin-top: 20px;
-    }
-
-    #preview {
-      display: none;
+    .card img {
       max-width: 100%;
-      max-height: 200px;
-      margin-top: 12px;
+      max-height: 250px;
+      display: block;
+      margin-top: 10px;
       border-radius: 8px;
     }
 
-    #status {
+    .back {
+      display: block;
       text-align: center;
-      overflow-wrap: anywhere;
+      margin: 20px;
     }
   </style>
 </head>
 
 <body>
+  <h2 style="text-align:center">Admin Panel - User Messages</h2>
+  <a class="back" href="/">Back to User Page</a>
 
-  <!-- Admin Panel Link -->
-  <div class="top">
-    <a href="/admin">Admin Panel</a>
-  </div>
-
-  <!-- Page Heading -->
-  <header>
-    <h1>Welcome to Message Portal</h1>
-    <p>Enter your details and upload an image.</p>
-  </header>
-
-  <!-- Display Image -->
-  <img
-    class="banner"
-    src="https://images.unsplash.com/photo-1497366754035-f200968a6e72?auto=format&fit=crop&w=800&q=80"
-    alt="Office workspace"
-  >
-
-  <!-- User Form -->
-  <form id="messageForm">
-
-    <h2>Submit Your Details</h2>
-
-    <!-- 1. Text -->
-    <label for="name">Full Name</label>
-    <input
-      type="text"
-      id="name"
-      name="name"
-      required
-    >
-
-    <!-- 2. Email -->
-    <label for="email">Email ID</label>
-    <input
-      type="email"
-      id="email"
-      name="email"
-      required
-    >
-
-    <!-- 3. Telephone Number -->
-    <label for="phone">Phone Number</label>
-    <input
-      type="tel"
-      id="phone"
-      name="phone"
-      required
-    >
-
-    <!-- 4. Password -->
-    <label for="password">Password</label>
-    <input
-      type="password"
-      id="password"
-      name="password"
-      required
-    >
-
-    <!-- 5. Date -->
-    <label for="date">Date</label>
-    <input
-      type="date"
-      id="date"
-      name="date"
-      required
-    >
-
-    <!-- 6. Image Upload -->
-    <label for="image">Upload Image</label>
-    <input
-      type="file"
-      id="image"
-      name="image"
-      accept="image/*"
-      required
-    >
-
-    <!-- Image Preview -->
-    <img id="preview" alt="Selected image preview">
-
-    <button type="submit">Submit Details</button>
-
-    <p id="status"></p>
-
-  </form>
+  <div id="messages">Loading messages...</div>
 
   <script>
-    const form = document.getElementById("messageForm");
-    const status = document.getElementById("status");
-    const imageInput = document.getElementById("image");
-    const preview = document.getElementById("preview");
+    async function loadMessages() {
+      const box = document.getElementById("messages");
 
-    // Display selected image
-    imageInput.addEventListener("change", () => {
-      const file = imageInput.files[0];
+      try {
+        const response = await fetch("/api/messages");
 
-      preview.style.display = "none";
-      preview.removeAttribute("src");
+        if (!response.ok) {
+          throw new Error("Could not load messages");
+        }
 
-      if (file) {
-        if (!file.type.startsWith("image/")) {
-          status.textContent = "Please select an image.";
-          imageInput.value = "";
+        const messages = await response.json();
+        box.replaceChildren();
+
+        if (messages.length === 0) {
+          box.textContent = "No messages submitted yet.";
           return;
         }
 
-        status.textContent = "";
-        preview.src = URL.createObjectURL(file);
-        preview.style.display = "block";
-      }
-    });
+        messages.forEach(item => {
+          const card = document.createElement("div");
+          card.className = "card";
 
-    // Submit form to backend
-    form.addEventListener("submit", async (event) => {
-      event.preventDefault();
+          const title = document.createElement("h3");
+          title.textContent = item.subject || "User Message";
+          card.appendChild(title);
 
-      status.textContent = "Submitting...";
+          ["name", "email", "phone", "dob", "message"].forEach(key => {
+            const p = document.createElement("p");
+            p.textContent =
+              key.charAt(0).toUpperCase() + key.slice(1) +
+              ": " + (item[key] || "Not provided");
+            card.appendChild(p);
+          });
 
-      const data = new FormData(form);
+          if (item.image_url) {
+            const img = document.createElement("img");
+            img.src = item.image_url;
+            img.alt = "Uploaded image";
+            img.onerror = () => {
+              img.alt = "Image could not be loaded";
+              img.removeAttribute("src");
+            };
+            card.appendChild(img);
+          }
 
-      try {
-        const response = await fetch("/api/messages", {
-          method: "POST",
-          body: data
+          box.appendChild(card);
         });
-
-        const result = await response.json();
-
-        if (!response.ok) {
-          throw new Error(
-            result.error || "Submission failed"
-          );
-        }
-
-        status.textContent =
-          "Details submitted successfully!";
-
-        form.reset();
-        preview.removeAttribute("src");
-        preview.style.display = "none";
-
       } catch (error) {
-        status.textContent =
-          "Error: " + error.message;
+        box.textContent = "Could not load messages. Check the server.";
       }
-    });
-  </script>
-      }
-    });
+    }
+
+    loadMessages();
+    setInterval(loadMessages, 5000);
   </script>
 </body>
 </html>
+```
 
 </body>
 </html>
