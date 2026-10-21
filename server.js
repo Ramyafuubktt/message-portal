@@ -6,7 +6,7 @@ const path = require("path");
 const app = express();
 
 app.use(express.json());
-app.use(express.static(path.join(__dirname, "public")));
+app.use(express.static(path.join(__dirname, "Public")));
 
 const db = new Pool({
   connectionString: process.env.DATABASE_URL,
@@ -16,15 +16,15 @@ const db = new Pool({
 });
 
 app.get("/", (req, res) => {
-  res.sendFile(path.join(__dirname, "public", "index.html"));
+  res.sendFile(path.join(__dirname, "Public", "index.html"));
 });
 
 app.get("/admin", (req, res) => {
-  res.sendFile(path.join(__dirname, "public", "admin.html"));
+  res.sendFile(path.join(__dirname, "Public", "admin.html"));
 });
 
 app.get("/admin.html", (req, res) => {
-  res.sendFile(path.join(__dirname, "public", "admin.html"));
+  res.sendFile(path.join(__dirname, "Public", "admin.html"));
 });
 
 app.post("/api/messages", async (req, res) => {
@@ -102,3 +102,4 @@ start().catch(err => {
   console.error("Database connection failed:", err.message);
   process.exit(1);
 });
+
