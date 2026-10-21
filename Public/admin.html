@@ -4,108 +4,83 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Admin Panel</title>
+  <title>Admin Dashboard</title>
   <link rel="stylesheet" href="/style.css">
-
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #f2f5fb;
-      padding: 20px;
-    }
-
-    .card {
-      background: white;
-      max-width: 600px;
-      margin: 20px auto;
-      padding: 20px;
-      border-radius: 10px;
-      box-shadow: 0 3px 15px #0001;
-      overflow-wrap: anywhere;
-    }
-
-    .card img {
-      max-width: 100%;
-      max-height: 250px;
-      display: block;
-      margin-top: 10px;
-      border-radius: 8px;
-    }
-
-    .back {
-      display: block;
-      text-align: center;
-      margin: 20px;
-    }
-  </style>
 </head>
-
 <body>
-  <h2 style="text-align:center">Admin Panel - User Messages</h2>
-  <a class="back" href="/">Back to User Page</a>
 
-  <div id="messages">Loading messages...</div>
+  <nav class="navbar">
+    <span class="brand">Admin Dashboard</span>
+    <a href="/" class="admin-link">User Form</a>
+  </nav>
+
+  <main class="admin-container">
+    <h1>Submitted Messages</h1>
+    <p>Messages submitted through the user form appear here.</p>
+    <p id="status" role="status">Loading messages...</p>
+    <div id="messages" class="message-grid"></div>
+  </main>
 
   <script>
-    async function loadMessages() {
-      const box = document.getElementById("messages");
+    const container = document.getElementById("messages");
+    const status = document.getElementById("status");
 
+    async function loadMessages() {
       try {
         const response = await fetch("/api/messages");
 
         if (!response.ok) {
-          throw new Error("Could not load messages");
+          throw new Error("Could not load messages.");
         }
 
         const messages = await response.json();
-        box.replaceChildren();
+        container.replaceChildren();
 
         if (messages.length === 0) {
-          box.textContent = "No messages submitted yet.";
+          status.textContent = "No messages submitted yet.";
           return;
         }
 
+        status.textContent = `Total submissions: ${messages.length}`;
+
         messages.forEach(item => {
-          const card = document.createElement("div");
-          card.className = "card";
+          const card = document.createElement("article");
+          card.className = "message-card";
 
           const title = document.createElement("h3");
-          title.textContent = item.subject || "User Message";
+          title.textContent = item.name;
           card.appendChild(title);
 
-          ["name", "email", "phone", "dob", "message"].forEach(key => {
+          const details = [
+            ["Email", item.email],
+            ["Phone", item.phone],
+            ["Date", String(item.submitted_date).slice(0, 10)],
+            ["Rating", `${item.rating} / 5`],
+            ["Message", item.message]
+          ];
+
+          details.forEach(([label, value]) => {
             const p = document.createElement("p");
-            p.textContent =
-              key.charAt(0).toUpperCase() + key.slice(1) +
-              ": " + (item[key] || "Not provided");
+            const strong = document.createElement("strong");
+            strong.textContent = label + ": ";
+            p.appendChild(strong);
+            p.appendChild(document.createTextNode(value ?? ""));
             card.appendChild(p);
           });
 
-          if (item.image_url) {
-            const img = document.createElement("img");
-            img.src = item.image_url;
-            img.alt = "Uploaded image";
-            img.onerror = () => {
-              img.alt = "Image could not be loaded";
-              img.removeAttribute("src");
-            };
-            card.appendChild(img);
-          }
-
-          box.appendChild(card);
+          container.appendChild(card);
         });
       } catch (error) {
-        box.textContent = "Could not load messages. Check the server.";
+        status.textContent = error.message;
       }
     }
 
     loadMessages();
     setInterval(loadMessages, 5000);
   </script>
-</body>
-</html>
 
 </body>
 </html>
+
 
 
