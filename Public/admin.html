@@ -4,20 +4,19 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Admin Dashboard</title>
+  <title>Admin Panel</title>
   <link rel="stylesheet" href="/style.css">
 </head>
 <body>
 
   <nav class="navbar">
-    <span class="brand">Admin Dashboard</span>
+    <span class="brand">Admin Panel</span>
     <a href="/" class="admin-link">User Form</a>
   </nav>
 
   <main class="admin-container">
-    <h1>Submitted Messages</h1>
-    <p>Messages submitted through the user form appear here.</p>
-    <p id="status" role="status">Loading messages...</p>
+    <h1>Submitted Details</h1>
+    <p id="status" role="status">Loading submissions...</p>
     <div id="messages" class="message-grid"></div>
   </main>
 
@@ -30,14 +29,14 @@
         const response = await fetch("/api/messages");
 
         if (!response.ok) {
-          throw new Error("Could not load messages.");
+          throw new Error("Could not load submissions.");
         }
 
         const messages = await response.json();
         container.replaceChildren();
 
         if (messages.length === 0) {
-          status.textContent = "No messages submitted yet.";
+          status.textContent = "No submissions yet.";
           return;
         }
 
@@ -47,26 +46,41 @@
           const card = document.createElement("article");
           card.className = "message-card";
 
-          const title = document.createElement("h3");
-          title.textContent = item.name;
-          card.appendChild(title);
+          const heading = document.createElement("h3");
+          heading.textContent = item.name;
+          card.appendChild(heading);
 
-          const details = [
+          const fields = [
             ["Email", item.email],
             ["Phone", item.phone],
             ["Date", String(item.submitted_date).slice(0, 10)],
-            ["Rating", `${item.rating} / 5`],
+            ["Marks", `${item.marks} / 100`],
             ["Message", item.message]
           ];
 
-          details.forEach(([label, value]) => {
+          fields.forEach(([label, value]) => {
             const p = document.createElement("p");
             const strong = document.createElement("strong");
             strong.textContent = label + ": ";
             p.appendChild(strong);
-            p.appendChild(document.createTextNode(value ?? ""));
+            p.appendChild(
+              document.createTextNode(String(value ?? ""))
+            );
             card.appendChild(p);
           });
+
+          if (item.image_base64 && item.image_mime) {
+            const image = document.createElement("img");
+            image.className = "submitted-image";
+            image.alt = "Image uploaded by " + item.name;
+            image.src =
+              `data:${item.image_mime};base64,${item.image_base64}`;
+            card.appendChild(image);
+          } else {
+            const p = document.createElement("p");
+            p.textContent = "No image uploaded.";
+            card.appendChild(p);
+          }
 
           container.appendChild(card);
         });
