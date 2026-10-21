@@ -16,13 +16,21 @@
 
   <header class="hero">
     <h1>Welcome to Message Portal</h1>
-    <p>Enter your details and upload an image if needed.</p>
+    <p>Fill in the form below to submit your details.</p>
   </header>
 
   <section class="gallery">
-    <img src="https://images.unsplash.com/photo-1497366754035-f200968a6e72?auto=format&fit=crop&w=500&q=75" alt="Office">
-    <img src="https://images.unsplash.com/photo-1497366811353-6870744d04b2?auto=format&fit=crop&w=500&q=75" alt="Workspace">
-    <img src="https://images.unsplash.com/photo-1521737711867-e3b97375f902?auto=format&fit=crop&w=500&q=75" alt="Team">
+    <img
+      src="https://images.unsplash.com/photo-1497366754035-f200968a6e72?auto=format&fit=crop&w=500&q=75"
+      alt="Modern office">
+
+    <img
+      src="https://images.unsplash.com/photo-1497366811353-6870744d04b2?auto=format&fit=crop&w=500&q=75"
+      alt="Office workspace">
+
+    <img
+      src="https://images.unsplash.com/photo-1521737711867-e3b97375f902?auto=format&fit=crop&w=500&q=75"
+      alt="Team working together">
   </section>
 
   <main class="form-container">
@@ -30,30 +38,54 @@
 
     <form id="messageForm">
       <label for="name">Full Name</label>
-      <input type="text" id="name" name="name" required>
+      <input
+        type="text"
+        id="name"
+        name="name"
+        placeholder="Enter your name"
+        required>
 
       <label for="email">Email Address</label>
-      <input type="email" id="email" name="email" required>
+      <input
+        type="email"
+        id="email"
+        name="email"
+        placeholder="Enter your email"
+        required>
 
       <label for="phone">Phone Number</label>
-      <input type="tel" id="phone" name="phone" required>
+      <input
+        type="tel"
+        id="phone"
+        name="phone"
+        placeholder="Enter your phone number"
+        required>
 
       <label for="date">Date</label>
-      <input type="date" id="date" name="date" required>
+      <input
+        type="date"
+        id="date"
+        name="date"
+        required>
 
       <label for="marks">Marks (out of 100)</label>
-      <input type="number" id="marks" name="marks"
-             min="0" max="100" step="1" required>
+      <input
+        type="number"
+        id="marks"
+        name="marks"
+        min="0"
+        max="100"
+        step="1"
+        placeholder="Enter marks from 0 to 100"
+        required>
 
       <label for="message">Message</label>
-      <textarea id="message" name="message" rows="4" required></textarea>
-
-      <label for="image">Upload Image (optional, max 5 MB)</label>
-      <input type="file" id="image" name="image"
-             accept="image/jpeg,image/png,image/webp,image/gif">
-
-      <img id="preview" class="upload-preview"
-           alt="Selected image preview" hidden>
+      <textarea
+        id="message"
+        name="message"
+        rows="4"
+        placeholder="Type your message"
+        required></textarea>
 
       <button type="submit" id="submitBtn">Submit</button>
       <p id="status" role="status"></p>
@@ -64,41 +96,25 @@
     const form = document.getElementById("messageForm");
     const status = document.getElementById("status");
     const submitBtn = document.getElementById("submitBtn");
-    const imageInput = document.getElementById("image");
-    const preview = document.getElementById("preview");
-
-    imageInput.addEventListener("change", () => {
-      const file = imageInput.files[0];
-
-      preview.hidden = true;
-      preview.removeAttribute("src");
-
-      if (!file) return;
-
-      if (file.size > 5 * 1024 * 1024) {
-        status.textContent = "Image must be 5 MB or smaller.";
-        imageInput.value = "";
-        return;
-      }
-
-      preview.src = URL.createObjectURL(file);
-      preview.hidden = false;
-      status.textContent = "";
-    });
 
     form.addEventListener("submit", async (event) => {
       event.preventDefault();
 
-      const data = new FormData(form);
-      data.set("marks", String(Number(data.get("marks"))));
+      const data = Object.fromEntries(
+        new FormData(form).entries()
+      );
 
+      data.marks = Number(data.marks);
       submitBtn.disabled = true;
       status.textContent = "Submitting...";
 
       try {
         const response = await fetch("/api/messages", {
           method: "POST",
-          body: data
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify(data)
         });
 
         const result = await response.json();
@@ -109,8 +125,6 @@
 
         status.textContent = result.message;
         form.reset();
-        preview.hidden = true;
-        preview.removeAttribute("src");
       } catch (error) {
         status.textContent = error.message;
       } finally {
@@ -121,6 +135,7 @@
 
 </body>
 </html>
+
 
     });
   </script>
