@@ -4,147 +4,244 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Admin Panel</title>
-  <link rel="stylesheet" href="/style.css">
+  <title>Message Portal</title>
 
   <style>
     body {
+      margin: 0;
       font-family: Arial, sans-serif;
       background: #f2f5fb;
-      padding: 20px;
       color: #222;
     }
 
-    h2 {
+    .top {
+      text-align: right;
+      padding: 20px 7%;
+    }
+
+    .top a,
+    button {
+      background: #3157d5;
+      color: white;
+      padding: 11px 18px;
+      border: none;
+      border-radius: 6px;
+      text-decoration: none;
+      cursor: pointer;
+    }
+
+    header {
       text-align: center;
+      padding: 10px 20px;
     }
 
-    #messages {
-      max-width: 700px;
-      margin: 20px auto;
-    }
-
-    .card {
-      background: white;
-      padding: 20px;
-      margin-bottom: 20px;
-      border-radius: 10px;
-      box-shadow: 0 3px 12px #0001;
-      overflow-wrap: anywhere;
-    }
-
-    .card p {
-      margin: 12px 0;
-    }
-
-    .user-image {
+    .banner {
       display: block;
+      width: 90%;
+      max-width: 600px;
+      height: 200px;
+      object-fit: cover;
+      border-radius: 12px;
+      margin: 15px auto 25px;
+    }
+
+    form {
+      max-width: 450px;
+      margin: 0 auto 40px;
+      padding: 25px;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 3px 15px #0001;
+    }
+
+    label {
+      display: block;
+      margin-top: 14px;
+      font-weight: bold;
+    }
+
+    input {
+      box-sizing: border-box;
+      width: 100%;
+      padding: 11px;
+      margin-top: 6px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+    }
+
+    button {
+      width: 100%;
+      margin-top: 20px;
+    }
+
+    #preview {
+      display: none;
       max-width: 100%;
-      max-height: 250px;
-      object-fit: contain;
-      margin-top: 10px;
+      max-height: 200px;
+      margin-top: 12px;
       border-radius: 8px;
     }
 
-    .back {
-      display: block;
-      width: fit-content;
-      margin: 20px auto;
-      background: #3157d5;
-      color: white;
-      padding: 10px 16px;
-      text-decoration: none;
-      border-radius: 6px;
+    #status {
+      text-align: center;
+      overflow-wrap: anywhere;
     }
   </style>
 </head>
 
 <body>
 
-  <h2>Admin Panel - User Details</h2>
+  <!-- Admin Panel Link -->
+  <div class="top">
+    <a href="/admin">Admin Panel</a>
+  </div>
 
-  <a class="back" href="/">Back to User Page</a>
+  <!-- Page Heading -->
+  <header>
+    <h1>Welcome to Message Portal</h1>
+    <p>Enter your details and upload an image.</p>
+  </header>
 
-  <div id="messages">Loading messages...</div>
+  <!-- Display Image -->
+  <img
+    class="banner"
+    src="https://images.unsplash.com/photo-1497366754035-f200968a6e72?auto=format&fit=crop&w=800&q=80"
+    alt="Office workspace"
+  >
+
+  <!-- User Form -->
+  <form id="messageForm">
+
+    <h2>Submit Your Details</h2>
+
+    <!-- 1. Text -->
+    <label for="name">Full Name</label>
+    <input
+      type="text"
+      id="name"
+      name="name"
+      required
+    >
+
+    <!-- 2. Email -->
+    <label for="email">Email ID</label>
+    <input
+      type="email"
+      id="email"
+      name="email"
+      required
+    >
+
+    <!-- 3. Telephone Number -->
+    <label for="phone">Phone Number</label>
+    <input
+      type="tel"
+      id="phone"
+      name="phone"
+      required
+    >
+
+    <!-- 4. Password -->
+    <label for="password">Password</label>
+    <input
+      type="password"
+      id="password"
+      name="password"
+      required
+    >
+
+    <!-- 5. Date -->
+    <label for="date">Date</label>
+    <input
+      type="date"
+      id="date"
+      name="date"
+      required
+    >
+
+    <!-- 6. Image Upload -->
+    <label for="image">Upload Image</label>
+    <input
+      type="file"
+      id="image"
+      name="image"
+      accept="image/*"
+      required
+    >
+
+    <!-- Image Preview -->
+    <img id="preview" alt="Selected image preview">
+
+    <button type="submit">Submit Details</button>
+
+    <p id="status"></p>
+
+  </form>
 
   <script>
-    async function loadMessages() {
-      const box = document.getElementById("messages");
+    const form = document.getElementById("messageForm");
+    const status = document.getElementById("status");
+    const imageInput = document.getElementById("image");
+    const preview = document.getElementById("preview");
 
-      try {
-        const response = await fetch("/api/messages");
+    // Display selected image
+    imageInput.addEventListener("change", () => {
+      const file = imageInput.files[0];
 
-        if (!response.ok) {
-          throw new Error("Could not load messages");
-        }
+      preview.style.display = "none";
+      preview.removeAttribute("src");
 
-        const messages = await response.json();
-        box.replaceChildren();
-
-        if (!messages.length) {
-          box.textContent = "No details submitted yet.";
+      if (file) {
+        if (!file.type.startsWith("image/")) {
+          status.textContent = "Please select an image.";
+          imageInput.value = "";
           return;
         }
 
-        messages.forEach(item => {
-          const card = document.createElement("div");
-          card.className = "card";
+        status.textContent = "";
+        preview.src = URL.createObjectURL(file);
+        preview.style.display = "block";
+      }
+    });
 
-          const title = document.createElement("h3");
-          title.textContent = "User Submission";
-          card.appendChild(title);
+    // Submit form to backend
+    form.addEventListener("submit", async (event) => {
+      event.preventDefault();
 
-          ["name", "email", "phone", "date"].forEach(key => {
-            const p = document.createElement("p");
-            p.textContent =
-              key.charAt(0).toUpperCase() +
-              key.slice(1) + ": " +
-              (item[key] ?? "Not provided");
+      status.textContent = "Submitting...";
 
-            card.appendChild(p);
-          });
+      const data = new FormData(form);
 
-          // Display uploaded image if the backend returns its URL
-          if (item.imageUrl || item.image) {
-            const label = document.createElement("p");
-            label.textContent = "Uploaded Image:";
-            card.appendChild(label);
-
-            const img = document.createElement("img");
-            img.className = "user-image";
-            img.alt = "User uploaded image";
-            img.src = item.imageUrl || item.image;
-
-            img.onerror = () => {
-              img.alt = "Image could not be loaded";
-              img.removeAttribute("src");
-            };
-
-            card.appendChild(img);
-          }
-
-          // Display message if one is submitted
-          if (item.message) {
-            const p = document.createElement("p");
-            p.textContent = "Message: " + item.message;
-            card.appendChild(p);
-          }
-
-          // Never display submitted passwords in the Admin Panel.
-
-          box.appendChild(card);
+      try {
+        const response = await fetch("/api/messages", {
+          method: "POST",
+          body: data
         });
 
+        const result = await response.json();
+
+        if (!response.ok) {
+          throw new Error(
+            result.error || "Submission failed"
+          );
+        }
+
+        status.textContent =
+          "Details submitted successfully!";
+
+        form.reset();
+        preview.removeAttribute("src");
+        preview.style.display = "none";
+
       } catch (error) {
-        box.textContent =
-          "Could not load messages. Check your server and database.";
+        status.textContent =
+          "Error: " + error.message;
       }
-    }
-
-    loadMessages();
-    setInterval(loadMessages, 5000);
+    });
   </script>
-
+      }
+    });
+  </script>
 </body>
 </html>
 
