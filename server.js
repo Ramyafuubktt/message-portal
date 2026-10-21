@@ -1,4 +1,4 @@
-```javascript
+
 const express = require("express");
 const { Pool } = require("pg");
 const path = require("path");
@@ -183,4 +183,3 @@ start().catch(err => {
   console.error("Database connection failed:", err.message);
   process.exit(1);
 });
-```
