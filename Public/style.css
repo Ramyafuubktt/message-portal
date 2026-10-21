@@ -1,0 +1,74 @@
+
+body {
+  font-family: Arial, sans-serif;
+  background: #f4f6f9;
+  margin: 0;
+  padding: 25px;
+  color: #333;
+}
+
+h2 {
+  text-align: center;
+  color: #2c5282;
+}
+
+form, body > input, body > button {
+  max-width: 400px;
+}
+
+form {
+  background: white;
+  padding: 20px;
+  margin: 20px auto;
+  border-radius: 8px;
+}
+
+input, textarea {
+  width: 100%;
+  padding: 10px;
+  margin: 5px 0;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  box-sizing: border-box;
+  font-family: Arial, sans-serif;
+}
+
+textarea {
+  min-height: 100px;
+}
+
+button {
+  background: #2c5282;
+  color: white;
+  padding: 10px 15px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+button:hover {
+  background: #1a365d;
+}
+
+#status {
+  text-align: center;
+  margin: 15px;
+}
+
+#messages {
+  max-width: 600px;
+  margin: 20px auto;
+}
+
+#messages > div {
+  background: white;
+  padding: 15px;
+  margin: 12px 0;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  overflow-wrap: anywhere;
+}
+
+#messages h3 {
+  color: #2c5282;
+}
