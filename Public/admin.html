@@ -4,73 +4,56 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Admin - Messages</title>
+  <title>Admin Panel</title>
   <link rel="stylesheet" href="/style.css">
 </head>
 <body>
-  <h2>Admin - Submitted Messages</h2>
-
-  <label for="password">Admin Password:</label>
-  <input type="password" id="password" placeholder="Enter admin password">
-  <button id="load">View Messages</button>
-
-  <p id="status"></p>
-  <div id="messages"></div>
+  <h2>Admin Panel - User Messages</h2>
+  <div id="messages">Loading messages...</div>
 
   <script>
-    document.getElementById("load").addEventListener("click", async () => {
-      const password = document.getElementById("password").value;
-      const status = document.getElementById("status");
-      const container = document.getElementById("messages");
-
-      status.textContent = "Loading messages...";
-      container.replaceChildren();
+    async function loadMessages() {
+      const box = document.getElementById("messages");
 
       try {
-        const response = await fetch("/api/messages", {
-          headers: { "x-admin-password": password }
-        });
+        const response = await fetch("/api/messages");
+        if (!response.ok) throw new Error("Could not load messages");
 
-        const result = await response.json();
+        const messages = await response.json();
+        box.replaceChildren();
 
-        if (!response.ok) {
-          status.textContent = result.error || "Unable to load messages.";
+        if (messages.length === 0) {
+          box.textContent = "No messages submitted yet.";
           return;
         }
 
-        if (result.length === 0) {
-          status.textContent = "No messages submitted yet.";
-          return;
-        }
-
-        status.textContent = result.length + " message(s) found.";
-
-        result.forEach(item => {
+        messages.forEach(item => {
           const card = document.createElement("div");
-          const heading = document.createElement("h3");
-          heading.textContent = item.subject;
+          const title = document.createElement("h3");
+          title.textContent = item.subject;
 
-          const details = document.createElement("p");
-          details.textContent =
-            "Name: " + item.name +
-            " | Email: " + item.email +
-            " | Phone: " + item.phone;
+          card.appendChild(title);
 
-          const message = document.createElement("p");
-          message.textContent = "Message: " + item.message;
+          ["name", "email", "phone", "message"].forEach(key => {
+            const p = document.createElement("p");
+            p.textContent = key.charAt(0).toUpperCase()
+              + key.slice(1) + ": " + item[key];
+            card.appendChild(p);
+          });
 
-          const date = document.createElement("small");
-          date.textContent = "Submitted: " + item.created_at;
-
-          card.append(heading, details, message, date);
-          card.style.border = "1px solid #ccc";
-          card.style.padding = "12px";
-          card.style.margin = "12px 0";
-          container.appendChild(card);
+          box.appendChild(card);
         });
-      } catch {
-        status.textContent = "Unable to connect to the server.";
+      } catch (error) {
+        box.textContent = "Could not load messages. Please refresh.";
       }
+    }
+
+    loadMessages();
+    setInterval(loadMessages, 5000);
+  </script>
+</body>
+</html>
+
     });
   </script>
 </body>
